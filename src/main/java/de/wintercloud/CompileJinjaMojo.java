@@ -31,14 +31,14 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Goal which renders a jinja file
  */
 @Mojo( name = "renderjinja" )
-public class CompileJinjaMojo
-    extends AbstractMojo
+public class CompileJinjaMojo extends AbstractMojo
 {
     /**
      * Location of the file.
@@ -49,6 +49,8 @@ public class CompileJinjaMojo
     private File varFile;
     @Parameter( property = "outputfile", required = true )
     private File outputFile;
+    @Parameter( property = "saltstack" )
+    private boolean saltstack = false;
 
     public void execute()
         throws MojoExecutionException
@@ -57,6 +59,19 @@ public class CompileJinjaMojo
             // Load the parameters
             Yaml yaml = new Yaml();
             Map<String, Object> context = (Map<String, Object>) yaml.load(FileUtils.readFileToString(varFile,(Charset)null));
+
+            if(saltstack) {
+                // Saltstack is expecting a dict named 'pillar'
+                // Copying everything into this dict will allow devops to just CnP the files
+                // pillar['key'] = value
+
+                // The normal java Map does not implement get(key, otherWiseUseThisDefault);
+//                MyCustomMap saltstackMap = new MyCustomMap();
+
+                Map<String, Object> saltstackMap = new HashMap<String, Object>();
+                saltstackMap.putAll(context);
+                context.put("pillar", saltstackMap);
+            }
 
             // Load template
             Jinjava jinjava = new Jinjava();
@@ -71,3 +86,25 @@ public class CompileJinjaMojo
         }
     }
 }
+//
+// class MyCustomMap extends HashMap {
+//     public Object get(String key, String valueDefault) {
+//         Object o = get(key);
+//         if(null == o) {
+//             Boolean b = Boolean.parseBoolean(valueDefault);
+//             o = b;
+//         }
+//
+//         return o;
+//     }
+//
+//     public Object get(String key, boolean valueDefault) {
+//         Object o = get(key);
+//         if(null == o) {
+//             Boolean b = valueDefault;
+//             o = b;
+//         }
+//
+//         return o;
+//     }
+//}
