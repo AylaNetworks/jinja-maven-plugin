@@ -2,6 +2,11 @@
 
 This project combines [jinjava](https://github.com/HubSpot/jinjava) and [snakeyaml](https://bitbucket.org/asomov/snakeyaml) to compile jinja template files with variable defintions in a yaml file from a maven project.
 
+## Note from will
+I made a slight modification to support saltstack:
+- added optional <saltstack>true</saltstack>
+- this parm will copy all k,v pairs into to dict named 'pillar' and now the tmpl file can be identical to a saltstack file.
+
 ## Usage
 
 In your project file do:
