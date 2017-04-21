@@ -16,7 +16,7 @@ In your project file do:
   <build>
     <plugins>
       <plugin>
-        <groupId>de.wintercloud</groupId>
+        <groupId>com.ayla</groupId>
         <artifactId>jinja-maven-plugin</artifactId>
         <version>1.0</version>
         <configuration>
@@ -33,7 +33,7 @@ In your project file do:
 and then execute the goal using
 
 ```
-mvn de.wintercloud:jinja-maven-plugin:1.0:renderjinja
+mvn com.ayla:jinja-maven-plugin:1.0:renderjinja
 ```
 
 or make it part of your compile phase:
@@ -42,7 +42,7 @@ or make it part of your compile phase:
   <build>
     <plugins>
       <plugin>
-        <groupId>de.wintercloud</groupId>
+        <groupId>com.ayla</groupId>
         <artifactId>jinja-maven-plugin</artifactId>
         <version>1.0</version>
         <executions>
