@@ -61,7 +61,7 @@ public class CompileJinjaMojo extends AbstractMojo {
 
   /**
    * merges one template file with one values file
-   * 
+   *
    * @param tmpl
    *          template file
    * @param sls
@@ -73,7 +73,7 @@ public class CompileJinjaMojo extends AbstractMojo {
   private void mergeOne(File tmpl, File sls, File output) throws MojoExecutionException {
     try {
       System.out.println("jinjava merging: " + tmpl.getAbsolutePath() + " + " + sls.getAbsolutePath() + " --> "
-          + output.getAbsolutePath());
+              + output.getAbsolutePath());
 
       // Load the parameters
       Yaml yaml = new Yaml();
@@ -107,9 +107,9 @@ public class CompileJinjaMojo extends AbstractMojo {
 
   /**
    * merges all template -> values files using implicit mapping: *.tmpl -> *.sls
-   * 
+   *
    * @note: skips merging application.tmpl with application.sls
-   * 
+   *
    * @throws MojoExecutionException
    */
   private void mergeMany() throws MojoExecutionException {
@@ -121,27 +121,36 @@ public class CompileJinjaMojo extends AbstractMojo {
       }
 
       File oututputDir = outputFile.getParentFile();
-      File[] templateFiles = oututputDir.listFiles();
+      File templateDir = templateFile.getParentFile();
+      File[] templateFiles = templateDir.listFiles();
       if (templateFiles == null || templateFiles.length < 1)
         return;
 
+      System.out.println("jinjava found these template files:");
+      Arrays.stream(templateFiles).filter(Objects::nonNull).filter(tf -> tf.getName().endsWith("tmpl"))
+              .forEach(tf -> System.out.println("          " + tf.getAbsolutePath()));
+
       Arrays.stream(templateFiles).filter(Objects::nonNull).forEach(
 
-          tf -> {
-            if (tf.isFile() && tf.getName().endsWith(".tmpl") && !tf.getName().equals("application.tmpl")) {
-              File sls = new File(tf.getAbsolutePath().replace(".tmpl", ".sls"));
-              if (sls.exists()) {
-                try {
-                  mergeOne(tf, sls,
-                      new File(oututputDir.getAbsolutePath() + File.separator + tf.getName().replace(".tmpl", ".yml")));
-                } catch (Exception e) {
-                  e.printStackTrace();
-                  System.exit(-1);
-                }
-              }
-            }
+              tf -> {
+                if (tf.isFile() && tf.getName().endsWith(".tmpl") && !tf.getName().equals("application.tmpl")) {
+                  File output = new File(
+                          oututputDir.getAbsolutePath() + File.separator + tf.getName().replace(".tmpl", ".yml")),
+                          sls = new File(output.getAbsolutePath().replace(".yml", ".sls"));
 
-          }
+                  if (sls.exists()) {
+                    try {
+                      mergeOne(tf, sls, output);
+                    } catch (Exception e) {
+                      e.printStackTrace();
+                      System.exit(-1);
+                    }
+                  } else {
+                    System.out.println("jinjava ERROR: couldn't find sls file: " + sls.getAbsolutePath());
+                  }
+                }
+
+              }
 
       );
     } catch (Exception e) {
